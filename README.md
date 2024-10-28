@@ -30,6 +30,9 @@ terraform plan
 ```bash
 terraform apply
 ```
+```bash
+terraform destroy
+```
 
 Acessando EC2:
 
@@ -44,4 +47,9 @@ sudo systemctl status nginx
 ```
 <h1 align="center">
   <img alt="EC2_Nginx_Running" title="EC2_Nginx_Running" src=".github/ec2_nginx_active.png" width="700" />
+</h1>
+
+Máquina EC2 na AWS:
+<h1 align="center">
+  <img alt="EC2_Console_AWS" title="EC2_Console_AWS" src=".github/aws_ec2_console.png" width="700" />
 </h1>
