@@ -1,23 +1,12 @@
-# Infraestrutura Automatizada
+# Infraestrutura Automatizada -- DEV -- Streamlit
 
 <h1 align="center">
-  <img alt="Welcome" title="Welcome" src=".github//welcome.png" width="700" />
+  <img alt="Streamlit_Cadastro_OK" title="Streamlit_Cadastro_OK" src=".github//streamlit_cadastro_ok.png" width="700" />
 </h1>
 
 # 💻 Sobre
 
-No arquivo [main.tf](./main.tf) temos basicamente um provider aws e a criação de uma EC2 com instalação de um nginx.
-
-O comando abaixo pode ser útil para ver informações das EC2s ([aqui](.github/aws_ec2_describe.png)):
-
-```bash
-aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceID:InstanceId,State:State.Name,PublicIpAddress:PublicIpAddress,InstanceType:InstanceType,PlatformDetails:PlatformDetails}" --output table
-```
-<h1 align="center">
-  <img alt="EC2_Describe" title="EC2_Describe" src=".github/aws_ec2_describe.png" width="700" />
-</h1>
-
-No arquivo [web_content.tf](./web_content.tf) temos basicamente um null provider -- ferramenta que permite atualizar conteúdo sem tocar na infraestrutura. Também temos um recurso "null_resource" "web_content" com conexão para a EC2 e customização da página index.html do nginx. Dessa forma após fazer qualquer modificação no html, não é necessário destruir (terraform destroy) a máquina, apenas executar terraform apply.
+No arquivo [main.tf](./main.tf) temos basicamente um provider aws, a criação de um banco de dados postgres (rds) e a criação de uma EC2 com execucação da aplicação [Streamlit](./web.py).
 
 Alguns comandos terraform:
 
@@ -34,22 +23,110 @@ terraform apply
 terraform destroy
 ```
 
+Caso precise realizar alguma modificação no arquivo [web.py](./web.py) e enviar para a EC2:
+
+```bash
+terraform output PUBLIC_IP
+```
+
+```bash
+scp -i ~/.ssh/id_ed25519 web.py ubuntu@<PUBLIC_IP>:/home/ubuntu/web.py
+```
+
 Acessando EC2:
 
 ```bash
 ssh -i ~/.ssh/id_ed25519 ubuntu@<PUBLIC_IP>
 ```
 
-Verificando nginx status:
-
-```bash
-sudo systemctl status nginx
+Verificar processo Streamlit:
+```sh
+ps aux | grep streamlit
 ```
+
+Kill processo Streamlit:
+```sh
+pkill -f streamlit
+```
+
+Source Environment Variables:
+```sh
+source /home/ubuntu/.bashrc
+```
+
+Start Streamlit Application:
+```sh
+nohup /home/ubuntu/venv/bin/streamlit run /home/ubuntu/web.py > /home/ubuntu/streamlit.log 2>&1 &
+```
+
+Verificar processo Streamlit:
+```sh
+ps aux | grep streamlit
+```
+
 <h1 align="center">
-  <img alt="EC2_Nginx_Running" title="EC2_Nginx_Running" src=".github/ec2_nginx_active.png" width="700" />
+  <img alt="Streamlit_Restart" title="Streamlit_Restart" src=".github//streamlit_restart.png" width="700" />
 </h1>
 
-Máquina EC2 na AWS:
+Acessar Streamlit no navegador:
+```bash
+http://<PUBLIC_IP>:8501/
+```
+
 <h1 align="center">
-  <img alt="EC2_Console_AWS" title="EC2_Console_AWS" src=".github/aws_ec2_console.png" width="700" />
+  <img alt="Streamlit_Start" title="Streamlit_Start" src=".github//streamlit_start.png" width="700" />
+</h1>
+
+<h1 align="center">
+  <img alt="Streamlit_Cadastro_NOK" title="Streamlit_Cadastro_NOK" src=".github//streamlit_cadastro_nok.png" width="700" />
+</h1>
+
+<h1 align="center">
+  <img alt="Streamlit_DB_Tab" title="Streamlit_DB_Tab" src=".github//streamlit_db_tab.png" width="700" />
+</h1>
+
+Verificando dados cadastros com psql dentro da EC2:
+
+```bash
+terraform output RDS_ENDPOINT
+```
+
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@<PUBLIC_IP>
+```
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt install postgresql-client -y
+```
+
+```bash
+echo $DB_HOST
+echo $DB_NAME
+echo $DB_USER
+echo $DB_PASS
+echo $DB_PORT
+```
+
+```bash
+psql -h $DB_HOST -d $DB_NAME -U $DB_USER -W
+```
+
+```bash
+\dt
+```
+
+```bash
+\d pessoas
+```
+
+```bash
+SELECT * FROM pessoas;
+```
+
+<h1 align="center">
+  <img alt="PSQL_DB_EC2" title="PSQL_DB_EC2" src=".github/psql_db_ec2.png" width="700" />
 </h1>
